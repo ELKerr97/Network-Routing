@@ -37,32 +37,70 @@ class NetworkRoutingSolver:
             edges_left -= 1
         return {'cost':total_length, 'path':path_edges}
 
-    # find the shortest paths between every point and every other point
-    # send the results to getShortestPath()
+    # find the shortest paths between source node and every other node
+    # send the results to getShortestPath() ???
     def computeShortestPaths(self, srcIndex, use_heap=False):
         # set the source node index
         self.source = srcIndex
         t1 = time.time()
-        if use_heap:
-            # run dijkstra's on heap
-            print('d on heap')
-        else:
-            # run dijkstra's on array
-            print('d on array')
+        dijkstra_result = self.dijkstra(srcIndex, use_heap)
         # TODO: RUN DIJKSTRA'S TO DETERMINE SHORTEST PATHS.
         #       ALSO, STORE THE RESULTS FOR THE SUBSEQUENT
         #       CALL TO getShortestPath(dest_index)
         t2 = time.time()
         return (t2-t1)
 
-    def dijkstra(self, network, srcIndex):
+    # produces an array of distances from source to other nodes and
+    # a map of previous nodes to find path
+    def dijkstra(self, srcIndex, use_heap):
+        priority_queue = []
+        # a list to map each node to its previous node
+
+        # determine which priority queue to use
+        if use_heap:
+            # run dijkstra's on heap
+            print('dik on heap')
+        else:
+            # run dijkstra's on array
+            print('dik on array')
+            priority_queue = self.array_priority_queue()
+
+        while len(priority_queue) != 0:
+            if use_heap:
+                return
+            else:
+                priority_queue = self.array_explore(priority_queue)
+
+        return []
+
+    def array_explore(self, pq):
         return
+
+    # creates a priority queue as an array
+    def array_priority_queue(self):
+        pq = []
+        # insert nodes in array to -1 (infinity, or not visited yet)
+        # using a list to keep track of prev node (distance, prevNode)
+        for i in range(len(self.network)):
+            pq.append([-1, self.network[1]])
+
+        # set the source node to zero
+        pq[0] = 0
+
+        return pq
 
     def array_insert(self):
         return
 
-    def array_delete_min(self):
-        return
+    # finds, removes and returns node with min distance in priority_queue (pq)
+    def array_delete_min(self, pq):
+        # find min, must be greater than -1
+        array_min = min(i for i in pq if pq[i][0] > -1)
+        # remove min from list
+        pq.remove(array_min)
+        # return min
+        return array_min
 
-    def array_dec_index(self):
+    # decrements the distance of a node in the priority queue (pq)
+    def array_dec_index(self, index, pq):
         return
