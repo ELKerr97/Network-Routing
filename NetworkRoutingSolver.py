@@ -30,10 +30,15 @@ class NetworkRoutingSolver:
         # TODO: edges left should be the length of edges left, not 3
         edges_left = 3
         while edges_left > 0:
+            # set the edge between current node and next node
             edge = src_node.neighbors[2]
+            # append that edge to the path
             path_edges.append( (edge.src.loc, edge.dest.loc, '{:.0f}'.format(edge.length)) )
+            # add the length of that edge to the total length
             total_length += edge.length
+            # set the new current source node to the destination node (moving along the path)
             src_node = edge.dest
+            # decrement number of edged in the total path
             edges_left -= 1
         return {'cost':total_length, 'path':path_edges}
 
@@ -74,6 +79,16 @@ class NetworkRoutingSolver:
         return []
 
     def array_explore(self, pq):
+        # grab the min in the list
+        source = self.array_delete_min(pq)
+        # explore the min node
+        for i in range(len(source[1].neighbors)):
+            # todo: map priority queue to the delete_min node to decrement
+            # todo: track previous node
+            neighbor = source[1].neighbors[i]
+            print(neighbor)
+            # check if distance from source to neighbor is shorter than neighbor's current set distance
+            # remember: -1 acts as infinity
         return
 
     # creates a priority queue as an array
@@ -81,25 +96,33 @@ class NetworkRoutingSolver:
         pq = []
         # insert nodes in array to -1 (infinity, or not visited yet)
         # using a list to keep track of prev node (distance, prevNode)
-        for i in range(len(self.network)):
-            pq.append([-1, self.network[1]])
+        for i in range(len(self.network.getNodes())):
+            pq.append([-1, self.network.getNodes()[i]])
 
         # set the source node to zero
-        pq[0] = 0
+        pq[0][0] = 0
 
         return pq
 
+    # todo: maybe we don't need this for an array...
     def array_insert(self):
         return
 
     # finds, removes and returns node with min distance in priority_queue (pq)
     def array_delete_min(self, pq):
         # find min, must be greater than -1
-        array_min = min(i for i in pq if pq[i][0] > -1)
+        curr_min_index = 0
+        curr_min_key = -1
+
+        for i in range(len(pq)):
+            if pq[i][0] >= 0 and pq[i][0] > curr_min_key:
+                curr_min_index = i
+                curr_min_key = pq[i][0]
+        min_node = pq[curr_min_key]
         # remove min from list
-        pq.remove(array_min)
+        pq.remove(min_node)
         # return min
-        return array_min
+        return min_node
 
     # decrements the distance of a node in the priority queue (pq)
     def array_dec_index(self, index, pq):
