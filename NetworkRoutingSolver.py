@@ -22,9 +22,6 @@ class NetworkRoutingSolver:
         self.dest = destIndex
         # keep track of nodes on path
         path_edges = []
-        # set the index that points to the source node
-        src_node = self.network.nodes[self.source]
-        # TODO: Go through source and dest indices and append edges
         result = self.get_node_order(destIndex)
         total_length = 0
         pathExists = result[2]
@@ -32,10 +29,11 @@ class NetworkRoutingSolver:
             nodes = result[0]
             total_length = result[1]
             for i in range(len(nodes) - 1):
-                # todo: make func to get distance between two neighbor nodes
                 path_edges.append((nodes[i].loc, nodes[i + 1].loc,
                                    '{:.0f}'.format(self.dist_between_related_nodes(nodes[i], nodes[i + 1]))))
-        return {'cost':total_length, 'path':path_edges}
+            return {'cost':total_length, 'path':path_edges}
+        else :
+            return {'cost':float('inf'), 'path':path_edges}
 
     # find the shortest paths between source node and every other node
     # send the results to getShortestPath() ???
@@ -107,17 +105,27 @@ class NetworkRoutingSolver:
         if use_heap:
             # run dijkstra's on heap
             print('dijk on heap')
-            parent_map, node_costs = self.dijkstra_heap()
-            # todo: add this info to node order and set found to true or false
+            parent_map, _ = self.dijkstra_heap()
+            self.set_node_order(parent_map)
+            print()
         else:
             # run dijkstra's on array
             print('dijk on array')
             priority_queue = self.create_array_priority_queue()
 
-        if use_heap:
+        if not use_heap:
             while len(priority_queue) != 0:
+                t1 = time.time()
                 priority_queue = self.array_explore(priority_queue)
+                t2 = time.time()
+                print(t2-t1)
         return
+
+    def set_node_order(self, parent_map):
+        for node in parent_map:
+            fromID = node.node_id
+            toID = parent_map[node].node_id
+            self.node_order[fromID] = toID
 
     def array_explore(self, pq):
         # grab the min in the list
@@ -205,7 +213,7 @@ class NetworkRoutingSolver:
         heap.heappush(pq, (0, self.network.nodes[self.source]))
 
         while pq:
-            # go greedily by always extending the shorter cost nodes first
+
             _, node = heap.heappop(pq)
             visited.add(node)
 
@@ -226,55 +234,9 @@ class NetworkRoutingSolver:
             if node_n.node_id == neighbor.dest.node_id:
                 return neighbor.length
 
-
-    # initialize the heap
-    def create_heap_priority_queue(self):
-        # heap -> graph position (as indices) : node
-        self.heap = []
-        return self.heap
-
-    def get_parent(self, node_index):
-        return (node_index - 1)//2
-
-    def get_left_child(self, node_index):
-        return ((2 * node_index) + 1)
-
-    def get_right_child(self, node_index):
-        return ((2 * node_index) + 2)
-
-    # get min (root of) heap
-    def get_min(self):
-        return self.heap[0]
-
-    def insert(self, node):
-        # find the next position in heap array available
-        next_pos_available = len(self.heap)
-        # assign that heap position to the node
-        self.heap[next_pos_available] = node
-        # move the new node up the tree into correct position
-        self.shift_up(next_pos_available)
-
-    # move a node up the tree until its parent is less than itself
-    def shift_up(self, node_index):
-        # keep shifting up a node until it's parent's value is less than its value or until it's at the top of the tree
-        while self.heap[self.get_parent(node_index)] > self.heap[node_index] and node_index > 0:
-            # if parent is greater, swap their indices
-            self.swap(node_index, self.get_parent(node_index))
-            # set current node and run again
-            node_index = self.get_parent(node_index)
-
-    # def shift_down(self, node_index):
-    #     # keep shifting down until both children are greater
-    #     left_child_index = self.get_left_child(node_index)
-    #     right_child_index = self.get_right_child(node_index)
-    #     while self.heap[node_index] < left_child_index or self.heap[node_index] < right_child_index:
-    #         if self.heap[]
-
     # swap a node with its parent
     def swap(self, node_index, parent_index):
         temp = self.heap[node_index]
         self.heap[node_index] = self.heap[parent_index]
         self.heap[parent_index] = temp
 
-    def heap_explore(self, pq):
-        return
